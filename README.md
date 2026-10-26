@@ -261,15 +261,17 @@ cp .env.example .env.local
 bun run test
 ```
 
-Unit tests for the login logic (`src/lib/auth.ts`), the login rate limiter
-(`src/lib/login-rate-limit.ts`), and the two other Redis-backed stores
-(`highscore-store.ts`, `calc-history-store.ts`) with [Vitest](https://vitest.dev).
+Unit tests with [Vitest](https://vitest.dev) for the login logic
+(`src/lib/auth.ts` and the `/api/public/login` route), the login rate limiter
+(`src/lib/login-rate-limit.ts`), the two other Redis-backed stores
+(`highscore-store.ts`, `calc-history-store.ts`), the workout plan's progression
+(`workout-store.ts`) and the logger (`log.ts`).
 
 ```bash
 bun run test:coverage
 ```
 
-Same tests, plus a coverage report for the four files above (`coverage/`,
+Same tests, plus a coverage report for the `src/lib` files listed in `vitest.config.ts` (`coverage/`,
 gitignored). Also runs in CI, where the number lands in the run's summary
 tab.
 
