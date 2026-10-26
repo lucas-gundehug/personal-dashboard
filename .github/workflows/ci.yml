@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - run: bun run lint
+
+      - run: bun run typecheck
+
+      - run: bun run test:coverage
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          node -e "
+            const fs = require('fs');
+            if (!fs.existsSync('./coverage/coverage-summary.json')) process.exit(0);
+            const s = require('./coverage/coverage-summary.json').total;
+            const pct = (k) => s[k].pct + '%';
+            const md = [
+              '## Coverage (of the modules with tests)',
+              '',
+              '| Metric | % |',
+              '| --- | --- |',
+              '| Statements | ' + pct('statements') + ' |',
+              '| Branches | ' + pct('branches') + ' |',
+              '| Functions | ' + pct('functions') + ' |',
+              '| Lines | ' + pct('lines') + ' |',
+            ].join('\n');
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + '\n');
+          "
+
+      - run: bun run build
+
+      - run: bun run check:bundle-size
